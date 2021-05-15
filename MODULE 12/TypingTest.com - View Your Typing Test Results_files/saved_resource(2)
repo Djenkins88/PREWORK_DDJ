@@ -1,0 +1,48 @@
+
+var ftGUID_5373403="486585E520E8FD";
+var ftConfID_5373403="23143309";
+var ftParams_5373403="ftOBA=1&ft_domain=www.typingtest.com&ft_ifb=1&ft_agentEnv=0&ft_referrer=https%3A%2F%2Fwww.typingtest.com%2F&gdpr=0&us_privacy=${US_PRIVACY}&cachebuster=103422.13904420339&DVauc=ABAjH0h6V9gpxG6MOYyRtV2fGopm&DVexc=1&DVsou=https%3A%2F%2Fwww.typingtest.com%2Fresult.html&DVapp=%24%7BAPPNEXUS_AUCTION_ID%7D&DVtru=%24%7BTRUSTX_AUCTION_ID%7D&DVcam=48034385&DVads=pub-9385072836008950&DVins=17712459&DVcre=327904674&DVebu=%25ebuy!&DVdcd=AD1EzRQAAABmCl4KDAgAFQAAAAAdAAAAABIMCAAVAAAAAB0AAAAAIhEI0eTzFqgCx_3gArACy4q5CEAB0gIqGAEiEwjegvbCsZ_wAhXU9SgFHZ3cDR8oATABOMnav6O7DUACSAFYmYEgEKLbrZwBWw1VclLZLtDulM0eShcskA&DVixAID=%24%7BIX_AID%7D&DVoxAID=%24%7BOX_AID%7D&DVpubmtcAID=%24%7BPUBMTC_AID%7D&DVrubiAID=%24%7BRUBI_AID%7D";
+var ftKeyword_5373403="";
+var ftCustom_5373403="";
+var ftSection_5373403="";
+var ftSegment_5373403="";
+var ftSegmentList_5373403=[];
+var ftRuleMatch_5373403="0";
+var ftTimestamp_5373403="1619559736";
+var ftGeoC2_5373403="us";
+var ftGeoState_5373403="tx";
+var ftGeoCity_5373403="richardson";
+var ftISP_5373403="att internet services";
+var ftSpeed_5373403="xdsl";
+var ftDMA_5373403="623";
+var ftLong_5373403="-96.75";
+var ftLat_5373403="32.96";
+var ftPostal_5373403="75080";
+var ftTimeZone_5373403="-500";
+var ftMobileCarrier_5373403="";
+var ftImp5373403 = {};
+ftImp5373403.privacy = "x";
+ftImp5373403.guidAge = "-1";
+ftImp5373403.impID = "D8E5AD4C-5E20-A534-49BA-F294B2634349";
+ftImp5373403.duid = "FT:486585E520E8FD";
+
+ftImp5373403.ft_tpplid = "";
+ftImp5373403.ft_c = {};
+ftImp5373403.gdpr = "0";
+ftImp5373403.gdpr_consent = "";
+ftImp5373403.gdpr_pd = "";
+ftImp5373403.oob_consent = "0";
+ftImp5373403.gdprStoredConsent = "";
+ftImp5373403.us_privacy = "!!US_PRIVACY!";
+
+ftImp5373403.jsAppend = "1";
+(function(){
+    var tag = document.getElementById('ft_servedby_5373403') || (function(s){
+    	return s[s.length-1];
+    }(document.getElementsByTagName('script'))),
+           js = document.createElement('script');
+    js.src = 
+"https://cdn.flashtalking.com/xre/537/5373403/3084895/js/j-5373403-3084895.js";
+    js.id = "ftscript_m5373403";
+    tag.parentNode.insertBefore(js, tag);
+}());

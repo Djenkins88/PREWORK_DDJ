@@ -1,0 +1,16 @@
+$(document).ready(function () {
+
+    $('.hamburger').click(function () {
+        $(this).toggleClass('open');
+        $('.mob-list').slideToggle(200, function () {
+        })
+    });
+
+    var currentPage = $('body').attr('class');
+    var link = $('.link').attr('data-link');
+    if (currentPage === link) {
+        $('.link').addClass('active')
+    }
+
+
+});

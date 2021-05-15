@@ -1,0 +1,38 @@
+
+var ftGUID_4163809="4865611600C16C";
+var ftConfID_4163809="0";
+var ftParams_4163809="ftx=&fty=&ftadz=&ftscw=&ft_custom=&ftOBA=1&ft_ifb=1&ft_domain=www.typingtest.com&ft_agentEnv=0&ft_referrer=https%3A%2F%2Fwww.typingtest.com%2F&cachebuster=67884.6185448243";
+var ftKeyword_4163809="";
+var ftCustom_4163809="";
+var ftSection_4163809="";
+var ftSegment_4163809="w2c";
+var ftSegmentList_4163809=[{s:'w2c'}];
+var ftRuleMatch_4163809="0";
+var ftTimestamp_4163809="1619559736";
+var ftGeoC2_4163809="us";
+var ftGeoState_4163809="tx";
+var ftGeoCity_4163809="richardson";
+var ftISP_4163809="att internet services";
+var ftSpeed_4163809="xdsl";
+var ftDMA_4163809="623";
+var ftLong_4163809="-96.75";
+var ftLat_4163809="32.96";
+var ftPostal_4163809="75080";
+var ftTimeZone_4163809="-500";
+var ftMobileCarrier_4163809="";
+var ftImp4163809 = {};
+ftImp4163809.privacy = "x";
+ftImp4163809.guidAge = "0";
+ftImp4163809.impID = "53EA54DC-1459-AA10-F1F6-01EA2CE5DBAE";
+ftImp4163809.duid = "FT:4865611600C16C";
+
+ftImp4163809.ft_tpplid = "";
+ftImp4163809.ft_c = {};
+ftImp4163809.gdpr = "";
+ftImp4163809.gdpr_consent = "";
+ftImp4163809.gdpr_pd = "";
+ftImp4163809.oob_consent = "0";
+ftImp4163809.gdprStoredConsent = "";
+ftImp4163809.us_privacy = "";
+
+document.write('<scr'+'ipt src="https://cdn.flashtalking.com/xre/416/4163809/3325657/js/j-4163809-3325657.js" id="ftscript_m4163809" name="ftscript_m4163809"></scr'+'ipt>');

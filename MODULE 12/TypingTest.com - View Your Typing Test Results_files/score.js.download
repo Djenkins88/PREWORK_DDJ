@@ -1,0 +1,892 @@
+"use strict";
+
+//const SCORE_FILES = ['culture', 'themeMixed', 'sport', 'nature', 'Technology','numbers','specialChar','mathChar','easyText','mediumText','misspelled','loanwords',
+//    'legal','medical','business','coding','Spanish','French', 'time_60', 'time_180', 'time_300', 'time_600'];
+
+//const SCORE_FILES = ['easyText', 'mediumText', 'difficultText', 'tricky', 'numbers', 'loanwords', 'themed',
+//    'medical', 'legal', 'coding', 'mathChar','Spanish','French'];
+
+//const SCORE_SECTIONS = [0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3];
+
+const LAST_PROMO = "lastPromo";
+const EASY_DATE = "easyDate";
+const EASY_PROMO = "easy_promo";
+const TRAINER_PROMO = "trainer_promo";
+const TRICKY_PROMO = "tricky_promo";
+const BLIND_PROMO = "blind_promo";
+
+const SCORE_FILES = [
+    [
+        { label: "Easy Text", file: "easyText" },
+        { label: "Medium Text", file: "mediumText" },
+        { label: "Difficult Text", file: "difficultText" },
+        { label: "Benchmark", file: "benchmark" }
+    ],
+    [
+        { label: "Tricky Spelling", file: "tricky" },
+        { label: "Blind Typing", file: "blindText" },
+        { label: "Story Typing", file: "story" },
+        //{label: 'Numbers & Symbols', file: 'numbers'}, {label: 'Loanwords', file: 'loanwords'},
+        { label: "Themed Text", file: "themed" },
+    ],
+    [
+        { label: "Medical", file: "medical" },
+        { label: "Legal", file: "legal" },
+        { label: "Business", file: "business" },
+        { label: "Coding", file: "coding" },
+        { label: "Math", file: "mathChar" },
+    ],
+    [
+        { label: "Spanish", file: "Spanish" },
+        { label: "French", file: "French" },
+    ],
+];
+
+let PLAIN_SCORE_FILES = [];
+for (let i = 0; i < SCORE_FILES.length; i++) {
+    for (let j = 0; j < SCORE_FILES[i].length; j++) {
+        PLAIN_SCORE_FILES.push(SCORE_FILES[i][j].file);
+    }
+}
+
+function fillScores() {
+    let data = localStorage.getItem("try5");
+    let dataArray = {};
+    if (data) dataArray = JSON.parse(data);
+    else return;
+
+    let scoreArray = [];
+
+    for (let i = 0; i < dataArray.text.length; i++) {
+        for (let sct = 0; sct < SCORE_FILES.length; sct++) {
+            for (let itm = 0; itm < SCORE_FILES[sct].length; itm++) {
+                if (dataArray.text[i].toLowerCase() === SCORE_FILES[sct][itm].file.toLowerCase()) {
+                    if (!scoreArray[SCORE_FILES[sct][itm].file]) {
+                        scoreArray[SCORE_FILES[sct][itm].file] = [];
+                    }
+                    scoreArray[SCORE_FILES[sct][itm].file].push({ avg: dataArray.speed[i], top: dataArray.speed[i] });
+                }
+            }
+        }
+    }
+
+    for (let sct = 0; sct < SCORE_FILES.length; sct++) {
+        for (let itm = 0; itm < SCORE_FILES[sct].length; itm++) {
+            let obj = {};
+            let top = 0;
+            let avg = 0;
+
+            if (!scoreArray[SCORE_FILES[sct][itm].file]) {
+                obj.count = 0;
+            } else {
+                obj.count = scoreArray[SCORE_FILES[sct][itm].file].length;
+            }
+
+            for (let j = 0; j < obj.count; j++) {
+                top = Math.max(top, scoreArray[SCORE_FILES[sct][itm].file][j].top);
+                avg += scoreArray[SCORE_FILES[sct][itm].file][j].avg;
+            }
+
+            if (obj.count > 0) {
+                avg = Math.round(avg / obj.count);
+            } else {
+                top = "n/a";
+                avg = "";
+                obj.count = "";
+            }
+
+            obj.top = top;
+            obj.avg = avg;
+
+            _scores[SCORE_FILES[sct][itm].file] = obj;
+        }
+    }
+
+    /*
+    for (let i = 0; i < SCORE_FILES.length; i++){
+        scoreArray[SCORE_FILES[i]] = [];
+        for (let j = 0; j < dataArray.text.length; j++){
+            if (dataArray.text[j].toLowerCase() == SCORE_FILES[i].toLowerCase())
+            {
+                scoreArray[SCORE_FILES[i]].push({top: dataArray.speed[j], avg: dataArray.gspeed[j]})
+            }
+        }
+
+        let obj = {};
+        obj.count = scoreArray[SCORE_FILES[i]].length;
+        let top = 0;
+        let avg = 0;
+
+        for (let j = 0; j < obj.count; j++){
+            top += scoreArray[SCORE_FILES[i]][j].top;
+            avg += scoreArray[SCORE_FILES[i]][j].avg;
+        }
+
+        if (obj.count > 0) {
+            top = Math.round(top / obj.count);
+            avg = Math.round(avg / obj.count);
+        }else{
+            top = "n/a";
+            avg = "";
+            obj.count = "";
+        }
+
+        obj.top = top;
+        obj.avg = avg;
+
+        _scores[SCORE_FILES[i]] = obj;
+    }
+    */
+
+    console.log("fillScores()");
+    console.log(dataArray);
+    console.log(_scores);
+}
+
+function getScoreBackColor(num) {
+    let str = "#eeffde";
+
+    if (num >= 25) {
+        str = "#dbffbb";
+    }
+
+    if (num >= 45) {
+        str = "#bbf28b";
+    }
+
+    if (num >= 65) {
+        str = "#9de75b";
+    }
+
+    if (num >= 85) {
+        str = "#83d936";
+    }
+
+    if (num == "n/a") {
+        str = "#D3D3D3";
+    }
+
+    return str;
+}
+
+function writeScoreTR(title, txt, time) {
+    let scoreStr = txt;
+
+    let str =
+        `
+    <tr>
+        <td class="td-name">` +
+        title +
+        `</td>
+        <td><p id="numbers_top" class="data" style="background-color: ` +
+        getScoreBackColor(_scores[scoreStr].top) +
+        `">` +
+        _scores[scoreStr].top +
+        `</p></td>
+        <td  id="numbers_avg" class="td-data">` +
+        _scores[scoreStr].avg +
+        `</td>
+            <td  id="numbers_count" class="td-data">` +
+        _scores[scoreStr].count +
+        `</td>
+            <td><a class="td-button" onclick="onScoreStartClick('` +
+        txt +
+        `.txt', ` +
+        time +
+        `)">Start</a></td>
+        </tr>
+        `;
+    return str;
+}
+
+function writeScoreCardTR(title, txt, time, lastFileName) {
+    let scoreStr = txt;
+
+    /*
+    if (isNaN(_scores[scoreStr].top)){
+        return '';
+    }
+     */
+
+    let starStr = ``;
+
+    if (lastFileName) {
+        //if (lastFileName.substr(0, lastFileName.indexOf('.txt')) == txt){
+        if (getTextLabel(lastFileName) === getTextLabel(txt + ".txt")) {
+            starStr = `<i class="fas fa-arrow-right" style="color: #58bc00;"></i>`;
+        }
+    }
+
+    let str =
+        `
+    <tr>
+        <td class="td-name">` +
+        title +
+        starStr +
+        ` </td>
+        <td><p id="numbers_top" class="data" style="background-color: ` +
+        getScoreBackColor(_scores[scoreStr].top) +
+        `">` +
+        _scores[scoreStr].top +
+        `</p></td>
+        <td  id="numbers_avg" class="td-data">` +
+        _scores[scoreStr].avg +
+        `</td>
+            <td  id="numbers_count" class="td-data">` +
+        _scores[scoreStr].count +
+        `</td>
+            <td><a class="td-button" onclick="onScoreStartClick('` +
+        txt +
+        `.txt', ` +
+        time +
+        `)">Start</a></td>
+        </tr>
+        `;
+    return str;
+}
+
+function writeScoreCardRetakeButton(title, txt, time) {
+    let scoreStr = txt;
+    if (!isNaN(_scores[scoreStr].top)) {
+        return "";
+    }
+
+    let str = `<a class="retake-button" onclick="onScoreStartClick('` + txt + `.txt', ` + time + `)">` + title + `</a>`;
+
+    return str;
+}
+
+function writeScoreSelect() {
+    let str = "";
+
+    for (let sct = 0; sct < SCORE_FILES.length; sct++) {
+        for (let itm = 0; itm < SCORE_FILES[sct].length; itm++) {
+            str +=
+                `<option value="` + SCORE_FILES[sct][itm].file + `.txt">` + SCORE_FILES[sct][itm].label + `</option>`;
+
+            if (itm === SCORE_FILES[sct].length - 1 && sct < SCORE_FILES.length - 1) {
+                str += `<option value="mediumText.txt">  </option>`;
+            }
+        }
+    }
+    return str;
+}
+
+function writeScoreTrickyKeyboard() {
+    let obj = document.getElementById("keyScoreTrickyKeyboard");
+    if (!obj) return;
+
+    let str = "";
+    let verbs = [
+        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+        ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";"],
+        ["z", "x", "c", "v", "b", "n", "m", ",", "."],
+    ];
+
+    for (let i = 0; i < verbs.length; i++) {
+        str += `<div class="tricky-keyboard-row">`;
+        for (let j = 0; j < verbs[i].length; j++) {
+            str += writeScoreTrickyVerb(verbs[i][j]);
+        }
+        str += `</div>`;
+    }
+
+    obj.innerHTML = str;
+}
+
+function writeScoreTrickyVerb(verb) {
+    let str = "";
+    let idx = -1;
+
+    for (let i = 0; i < _analyze.eScore.length; i++) {
+        if (verb == _analyze.eScore[i].verb) {
+            idx = i;
+        }
+    }
+
+    let cls = "tricky-cell-grey";
+    if (idx >= 0) {
+        if (_analyze.eScore[idx].correct < 5) {
+            cls = "tricky-cell-grey";
+        } else {
+            if (_analyze.eScore[idx].prc < RED_LIMIT) {
+                cls = "tricky-cell-red";
+            }
+            if (_analyze.eScore[idx].prc >= RED_LIMIT && _analyze.eScore[idx].prc < YELLOW_LIMIT) {
+                cls = "tricky-cell-yellow";
+            }
+
+            if (_analyze.eScore[idx].prc >= YELLOW_LIMIT) {
+                cls = "tricky-cell-grey";
+            }
+        }
+    }
+
+    str += `<div class="tricky-cell ` + cls + `">` + verb + `</div>`;
+
+    return str;
+}
+
+function writeScoreCard(titleArr, textArr, timeArr, lastFileName) {
+    let showTable = false;
+    for (let i = 0; i < titleArr.length; i++) {
+        if (!isNaN(_scores[textArr[i]].top)) {
+            showTable = true;
+        }
+    }
+
+    showTable = true;
+
+    let str = "";
+    if (showTable) {
+        str += `
+        <table style="width: 100%;opacity: 1">
+                <thead>
+                <tr>
+                <th scope="col"></th>
+                <th class="add-text" scope="col">TOP SPEED</th>
+            <th class="add-text" scope="col">AVG SPEED</th>
+            <th class="add-text" scope="col">ROUNDS</th>
+                <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>`;
+
+        for (let i = 0; i < titleArr.length; i++) {
+            str += writeScoreCardTR(titleArr[i], textArr[i], timeArr[i], lastFileName);
+        }
+
+        str += `</tbody>
+                </table>
+                 <hr/>
+               `;
+    }
+
+    /*
+    str +=
+        `
+                <div class="button-holder">`;
+
+    for (let i = 0; i < titleArr.length; i ++){
+        str += writeScoreCardRetakeButton(titleArr[i], textArr[i], timeArr[i]);
+    }
+    str +=
+        `</div>`;
+
+     */
+
+    return str;
+}
+
+function getScoreSymbolImg(txt) {
+    let str = "";
+
+    switch (txt) {
+        case "easyText":
+            str = `<img src="assets/images/icon_easy.png" alt="easy" />`;
+            break;
+        case "mediumText":
+            str = `<img src="assets/images/icon_medium.png" alt="medium" />`;
+            break;
+        case "difficultText":
+            str = `<img src="assets/images/icon_hard.png" alt="hard" />`;
+            break;
+
+        case "tricky":
+            str = `<i class="fas fa-spell-check fa-5x" style="margin-top: 7px"></i>`;
+            break;
+        case "blindText":
+            str = `<img src="assets/images/icon_blind.png" alt="blind"  style="margin-top: 40px" />`;
+            break;
+        case "story":
+            str = `<i class="fas fa-quote-left fa-5x" style="margin-top: 5px"></i>`;
+            break;
+        case "themed":
+            str = `<i class="fas fa-football-ball fa-3x"></i><i class="fas fa-film fa-3x" style="position: relative;margin-left: 50px;margin-top: -10px;"></i>`;
+            break;
+
+        case "legal":
+            str = `<img src="assets/images/icon_legal.png" alt="legal" style="height: 90px;width: auto;margin-left: 25px;"  />`;
+            break;
+        case "medical":
+            str = `<i class="fas fa-stethoscope fa-5x" style="margin-top: 5px;"></i>`;
+            break;
+        case "business":
+            str = `<i class="fas fa-briefcase fa-5x" style="margin-top: 5px;margin-left: 5px;"></i>`;
+            break;
+        case "coding":
+            str = `<i class="fas fa-code fa-5x" style="margin-top: 0px;margin-left: -5px;"></i>`;
+            break;
+            case "benchmark":
+                str = `<i class="fas fa-balance-scale fa-5x" style="margin-top: 0px;margin-left: -5px;"></i>`;
+                break;
+    }
+
+    return str;
+}
+
+function writeScoreSymbolsItem(title, txt, time, lastFileName) {
+    let scoreStr = txt;
+
+    /*
+    _scores[scoreStr].top = 35;
+    _scores[scoreStr].avg = 25;
+    _scores[scoreStr].count = 5;
+    /* */
+
+    let str = "";
+    let tileCls = "";
+   
+
+    if ((_scores[scoreStr].count == 0) || (_scores[scoreStr].count == "")) {
+
+        tileCls = "symbol-item place-back";
+
+        if (title === "Benchmark"){
+            title += `<p style="font-size:16px">Compare Your Skills</p>`;
+            tileCls += " symbol-item-bench";
+        }
+
+        str = `<div class='` + tileCls + `'  onclick="onScoreStartClick('` +
+        txt +
+        `.txt', ` +
+        time +
+        `);">`;
+
+        str += `<div class='top-text'>` + title + `</div>` +
+            `<div class='center-image'>` + getScoreSymbolImg(txt) + `</div>` +
+            `<div class='avg'>Start</div>`;
+        str += `<div class="play-btn">Start</div>`;
+    } else {
+
+        tileCls = "symbol-item result-back";
+
+        if (title === "Benchmark"){
+            tileCls += " symbol-item-bench";
+        }
+
+        str = `<div class='` + tileCls + `'  onclick="onScoreStartClick('` +
+        txt +    
+        `.txt', ` +
+        time +
+        `);">`;
+
+        str += `<div class='top-text'>` + title + `</div>` +
+            `<div class='center-container'><div class='top-label'>BEST</div><div class='best-text'>` + _scores[scoreStr].top + `</div><div>WPM</div></div>` +
+            `<div class='count'>x` + _scores[scoreStr].count + `</div>` +
+            `<div class='avg'>Start</div>`;
+            str += `<div class="play-btn">Start</div>`;
+    }
+
+    str += `</div>`;
+
+    return str;
+}
+
+function writeScoreSymbols(titleArr, textArr, timeArr, lastFileName) {
+    let str = `<div class='result-symbol-container'>`;
+    for (let i = 0; i < titleArr.length; i++) {
+        str += writeScoreSymbolsItem(titleArr[i], textArr[i], timeArr[i], lastFileName);
+    }
+    str += "</div>"
+    return str;
+}
+
+function initScoreSection(filename) {
+    let fileIdx = getSectionByFile(filename);
+    openCloseScoreSection(fileIdx);
+
+    if (_analyze.trickyNum >= 3) {
+        openCloseScoreSection(4);
+    } else {
+        if (fileIdx < 0) {
+            openCloseScoreSection(0);
+        }
+    }
+
+    let obj = document.getElementById("keyScoreTrickyNum");
+    if (obj) {
+        obj.innerText = _analyze.trickyNum;
+    }
+
+    writeScoreTrickyKeyboard();
+
+    let redNum = document.getElementById("keyScoreRed_num");
+    if (redNum) {
+        redNum.innerText = _analyze.getRedNum();
+    }
+
+    let yellowNum = document.getElementById("keyScoreYellow_num");
+    if (yellowNum) {
+        yellowNum.innerText = _analyze.getYellowNum();
+    }
+}
+
+function initBigScoreSection(filename) { }
+
+function getSectionByFile(txt) {
+    let filename = txt.substr(0, txt.indexOf(".txt"));
+
+    let section = -1;
+
+    for (let sct = 0; sct < SCORE_FILES.length; sct++) {
+        for (let itm = 0; itm < SCORE_FILES[sct].length; itm++) {
+            if (filename === SCORE_FILES[sct][itm].file) {
+                section = sct;
+            }
+        }
+    }
+
+    return section;
+}
+
+function getFilesBySectionNum(num) {
+    let arr = [];
+
+    for (let itm = 0; itm < SCORE_FILES[num].length; itm++) {
+        arr.push(SCORE_FILES[num][itm].file);
+    }
+
+    return arr;
+}
+
+function openCloseScoreSection(num) {
+    switch (num) {
+        case 0:
+            onScoreOpenCloseClick("stdScore_id", "stdClose_btn", "45px", "230px");
+            break;
+        case 1:
+            onScoreOpenCloseClick("numScore_id", "numClose_btn", "45px", "280px");
+            break;
+        case 2:
+            onScoreOpenCloseClick("difScore_id", "difClose_btn", "45px", "280px");
+            break;
+        case 3:
+            onScoreOpenCloseClick("proScore_id", "proClose_btn", "45px", "190px");
+            break;
+        case 4:
+            onScoreOpenCloseClick("keyScore_id", "keyClose_btn", "45px", "275px");
+            break;
+        default:
+            break;
+    }
+}
+
+function onScoreOpenCloseClick(id, close_id, maxH, minH) {
+    let elem = document.getElementById(id);
+    let close_btn = document.getElementById(close_id);
+
+    if (elem.style.height != minH) {
+        elem.style.height = minH;
+        close_btn.style.transform = "rotate(180deg)";
+    } else {
+        elem.style.height = maxH;
+        close_btn.style.transform = "rotate(0deg)";
+    }
+
+    if (elem.style.overflowX == "auto") {
+        elem.style.overflowX = "hidden";
+    } else {
+        elem.style.overflowX = "auto";
+    }
+}
+
+function onScoreStartClick(txt, time) {
+    if (txt === "benchmark.txt"){
+        window.location = "benchmark.html?from=result";
+        return;
+    }
+
+    sessionStorage.setItem("text_name", txt);
+    sessionStorage.setItem("timer", time);
+    ga("send", "event", "Master benchmarks", "Scorecard Start", "click");
+    window.location = "index.html";
+}
+
+function writeScoreTotal(num) {
+
+    return "";
+
+    let arr = getFilesBySectionNum(num);
+    let cnt = 0;
+
+    for (let i = 0; i < arr.length; i++) {
+        if (_scores[arr[i]] && _scores[arr[i]].count > 0) {
+            cnt++;
+        }
+    }
+
+    return "( " + String(cnt) + " of " + String(arr.length) + " )";
+}
+
+function isToday(num) {
+    let dateX = new Date(Number(num));
+    dateX.setHours(0, 0, 0, 0);
+
+    let dateNow = new Date();
+    dateNow.setHours(0, 0, 0, 0);
+
+    return dateX.getTime() === dateNow.getTime();
+}
+
+function initEasyPromo() {
+    document.getElementById(EASY_PROMO).style.display = "block";
+    localStorage.setItem(EASY_DATE, String(Date.now()));
+
+    ga("send", "event", "Master benchmarks", "EasyPromo", "view");
+}
+
+function initTrainerPromo() {
+    document.getElementById(TRAINER_PROMO).style.display = "block";
+    localStorage.setItem(LAST_PROMO, TRAINER_PROMO);
+
+    ga("send", "event", "Master benchmarks", "Speed Improvement Promo", "view");
+}
+
+function initTrickyPromo() {
+    document.getElementById(TRICKY_PROMO).style.display = "block";
+    localStorage.setItem(LAST_PROMO, TRICKY_PROMO);
+    let str = _analyze.getAnalyzeVerb(0);
+    str += _analyze.getAnalyzeVerb(1);
+    str += _analyze.getAnalyzeVerb(2);
+
+    document.getElementById("tricky_content").innerHTML = str;
+
+    ga("send", "event", "Master benchmarks", "TrickyKeyPromo", "view");
+}
+
+function initBlindPromo() {
+    document.getElementById(BLIND_PROMO).style.display = "block";
+    localStorage.setItem(LAST_PROMO, BLIND_PROMO);
+
+    ga("send", "event", "Master benchmarks", "BlindPromo", "view");
+}
+
+function showPromo() {
+    let easyDate = localStorage.getItem(EASY_DATE);
+    if (!easyDate) {
+        easyDate = 0;
+    }
+
+    let lastPromo = localStorage.getItem(LAST_PROMO);
+
+    if (netSpeed < 20 && textfile === "mediumText.txt" && acc < 80 && !isToday(easyDate)) {
+        initEasyPromo();
+        return;
+    }
+
+    //if (netSpeed < 50) {
+        //if (_analyze.trickyNum < 3) {
+            //initTrainerPromo();
+            //return;
+        //} else {
+            if (lastPromo === EASY_PROMO || lastPromo === TRAINER_PROMO || !lastPromo) {
+                initBlindPromo();
+                return;
+            } else {
+                initTrainerPromo();
+                return;
+            }
+        }
+    //} else {
+        //if (_analyze.trickyNum < 3) {
+           // initBlindPromo();
+           // return;
+       // } else {
+            //if (lastPromo === EASY_PROMO || lastPromo === TRAINER_PROMO || lastPromo === BLIND_PROMO || !lastPromo) {
+            //    initTrickyPromo();
+             //   return;
+           // } else {
+           //     initBlindPromo();
+            //    return;
+           // }
+       // }
+   // }
+// }
+
+function showAllPromos() {
+    let promoA = document.getElementById("promoA");
+    let promoB = document.getElementById("promoB");
+    if (!promoA || !promoB) {
+        return;
+    }
+
+    let easyDate = localStorage.getItem(EASY_DATE);
+    if (!easyDate) {
+        easyDate = 0;
+    }
+
+    let lastPromo = localStorage.getItem(LAST_PROMO);
+
+    if (netSpeed < 20 && textfile === "mediumText.txt" && acc < 80 && !isToday(easyDate)) {
+        initEasyPromo();
+        writeSmallTrickyPromo(promoA);
+        writeSmallTrainerPromo(promoB);
+        return;
+    }
+
+    if (netSpeed < 50) {
+        if (_analyze.trickyNum < 3) {
+            initTrainerPromo();
+            writeSmallDetectPromo(promoA);
+            writeSmallBlindPromo(promoB);
+            return;
+        } else {
+            if (lastPromo === EASY_PROMO || lastPromo === TRAINER_PROMO || lastPromo === BLIND_PROMO || !lastPromo) {
+                initTrickyPromo();
+                writeSmallTrainerPromo(promoA);
+                writeSmallBlindPromo(promoB);
+                return;
+            } else {
+                initTrainerPromo();
+                writeSmallTrickyPromo(promoA);
+                writeSmallBlindPromo(promoB);
+                return;
+            }
+        }
+    } else {
+        if (_analyze.trickyNum < 3) {
+            initBlindPromo();
+            writeSmallDetectPromo(promoA);
+            writeSmallTyperushPromo(promoB);
+            return;
+        } else {
+            if (lastPromo === EASY_PROMO || lastPromo === TRAINER_PROMO || lastPromo === BLIND_PROMO || !lastPromo) {
+                initTrickyPromo();
+                writeSmallTyperushPromo(promoA);
+                writeSmallBlindPromo(promoB);
+                return;
+            } else {
+                initBlindPromo();
+                writeSmallTrickyPromo(promoA);
+                writeSmallTyperushPromo(promoB);
+                return;
+            }
+        }
+    }
+
+    //writeSmallTrickyPromo(promoA);
+    //writeSmallEasyPromo(promoB);
+    //writeSmallBlindPromo(promoB);
+    //writeSmallDetectPromo(promoB);
+    //writeSmallTyperushPromo(promoB);
+    //writeSmallTrainerPromo(promoB);
+}
+
+function writeSmallTrickyPromo(promoObj) {
+    let str =
+        `<div class="promo-area" onclick="ga('send', 'event', 'Master benchmarks', 'TrickyKey PromoS', 'click');window.location='https://www.typingtest.com/analyze.html';">
+                    <div class="promo-img">` +
+        _analyze.getAnalyzeVerb(0) +
+        `</div>
+                     <div class="promo-txt">
+                        <h2>Tricky Keys <span class="tricky-span">` +
+        _analyze.trickyNum +
+        `</span></h2>
+                        <span class="sub-title">Take a few minutes to analyze and practice your tricky keys</span>
+                     </div>
+                      <i class="fas fa-arrow-circle-right fa-2x promo-arrow"></i>
+                 </div>`;
+
+    promoObj.innerHTML = str;
+}
+
+function writeSmallEasyPromo(promoObj) {
+    let str = `<div class="promo-area" onclick="ga('send', 'event', 'Master benchmarks', 'EasyText PromoS', 'click');onScoreStartClick('easyText.txt', '1');">
+                                    <div class="promo-img">
+                                        <img src="assets/images/promo-img-easy-test.png"
+                                             style="width: 130px;height: auto;margin-top: -10px;margin-left: -10px;"
+                                             alt="easy text">
+                                    </div>
+                                    <div class="promo-txt" style="margin-left: 150px">
+                                        <h2>TIP: Try Easier Test</h2>
+                                        <span class="sub-title">How about trying text that is easier?</span>
+                                    </div>
+                                    <i class="fas fa-arrow-circle-right fa-2x promo-arrow"></i>
+                                </div>`;
+
+    promoObj.innerHTML = str;
+}
+
+function writeSmallBlindPromo(promoObj) {
+    let str = `<div class="promo-area" onclick="ga('send', 'event', 'Master benchmarks', 'BlindTyping PromoS', 'click');window.location='https://www.typingtest.com/PromoC/test.html?minutes=1&textfile=mediumText.txt&mode=sent&result_url=result.html&bt=1';">
+                                    <div class="promo-img">
+                                        <img src="assets/images/promo-img-blind-test.png"
+                                             style="width: 130px;height: auto;margin-left: -10px;"
+                                             alt="easy text">
+                                    </div>
+                                    <div class="promo-txt" style="margin-left: 150px">
+                                        <h2>Blind Typing Challenge!</h2>
+                                        <span class="sub-title">What if you couldn't see what you are typing?</span>
+                                    </div>
+                                    <i class="fas fa-arrow-circle-right fa-2x promo-arrow"></i>
+                                </div>`;
+
+    promoObj.innerHTML = str;
+}
+
+function writeSmallDetectPromo(promoObj) {
+    let str =
+        `<div class="promo-area" onclick="ga('send', 'event', 'Master benchmarks', 'DetectTricky PromoS', 'click');window.location='https://www.typingtest.com/analyze.html';">
+                                    <div class="promo-img">` +
+        _analyze.getRedVerb("?") +
+        `</div>
+                                    <div class="promo-txt">
+                                        <h2>Detect Your Tricky Keys </h2>
+                                        <span class="sub-title">Take a few minutes to detect and practice your tricky keys</span>
+                                    </div>
+                                    <i class="fas fa-arrow-circle-right fa-2x promo-arrow"></i>
+                                </div>`;
+
+    promoObj.innerHTML = str;
+}
+
+function writeSmallTyperushPromo(promoObj) {
+    let str = `<div class="promo-area" onclick="ga('send', 'event', 'Master benchmarks', 'TypeRush PromoS', 'click');window.location='https://www.typerush.com/';">
+                                    <div class="promo-img" style="margin-top: -10px">
+                                        <img src="assets/images/helmet.png"
+                                             style="width: 60px;height: auto;"
+                                             alt="easy text">
+                                    </div>
+                                    <div class="promo-txt">
+                                        <h2>Rule Your League! </h2>
+                                        <span class="sub-title">Race against others by typing fun facts</span>
+                                    </div>
+                                    <i class="fas fa-arrow-circle-right fa-2x promo-arrow"></i>
+                                </div>`;
+
+    promoObj.innerHTML = str;
+}
+
+function writeSmallTrainerPromo(promoObj) {
+    let str =
+        `<div class="promo-area"
+                                     style='background: #E6F1F8 url("assets/images/promo-img-course.png") 5px 5px no-repeat;
+                                         background-size: 110px;'
+                                     onclick="ga('send', 'event', 'Master benchmarks', 'Speed Improvement PromoS', 'click');window.location = 'https://www.typingtest.com/trainer/';">
+
+                                    <p class="info">
+                                        <span>` +
+        timesStr +
+        `
+                                            <font style="font-size: 20px;margin-left: -7px">%</font>
+                                        </span>
+
+                                    </p>
+
+                                    <div class="promo-txt" style="margin-left: 120px">
+                                        <h2>Speed Up Your Typing!</h2>
+                                        <span class="sub-title">Complete our free typing course to type up to...</span>
+                                    </div>
+                                    <i class="fas fa-arrow-circle-right fa-2x promo-arrow"></i>
+                                </div>`;
+
+    promoObj.innerHTML = str;
+}
+
+let _scores = [];
+
+if (saveTry) {
+    saveTry();
+}
+fillScores();
